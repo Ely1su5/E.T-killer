@@ -1,7 +1,8 @@
-# Importing pygame and random
+# Importing pygame and random and math
 import pygame
 import random
 import random
+import math
 
 # initializate pygame
 pygame.init()
@@ -29,8 +30,8 @@ def player(x,y):
 enemy_x = random.randint(0,736)
 enemy_y = random.randint(50,150)
 enemy_img = pygame.image.load("ovni.png")
-enemy_x_change = 0.2
-enemy_y_change = 20
+enemy_x_change = 0.3
+enemy_y_change = 10
 def enemy(x,y):
     screen.blit(enemy_img,(x,y))
 
@@ -39,12 +40,20 @@ misil_x = 370
 misil_y = 455
 misil_img = pygame.image.load("misil2.0.png")
 misil_x_change = 0
-misil_y_change = 0.1
+misil_y_change = 0.8
 misil_state = True
 def misil(x,y):
     global misil_state
     misil_state = False
     screen.blit(misil_img,(x,y))
+
+# colision
+def is_colision (m_x, m_y, e_x, e_y):
+    distance = math.sqrt((e_x - m_x)**2 + (e_y - m_y)**2)
+    if distance < 27:
+        return True
+    else:
+        return False
 
 #Title
 pygame.display.set_caption("E.T Killer")
@@ -58,7 +67,7 @@ background = pygame.image.load("istockphoto-1478451948-1024x1024.jpg")
 
 # game loop
 running = True
-
+clock = pygame.time.Clock()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -71,8 +80,9 @@ while running:
             if event.key == pygame.K_RIGHT:
                 player_x_change = 0.5
             
-            if event.key == pygame.K_SPACE:                  
-                misil(player_x,misil_y)
+            if event.key == pygame.K_SPACE and misil_state == True:                  
+                misil_x = player_x
+                misil(misil_x,misil_y)
                 
         
         if event.type == pygame.KEYUP:
@@ -115,13 +125,23 @@ while running:
         enemy_y + enemy_y_change
 
     if misil_state == False:
-        misil(player_x, misil_y)
-        print(11)
+        misil(misil_x, misil_y)
         misil_y -= misil_y_change
+
+    if misil_y <= 0:
+        misil_y = 480
+        misil_state = True
+    colision = is_colision(misil_x, misil_y, enemy_x, enemy_y)
+    if colision:
+        misil_y = 480
+        misil_state = True
+        enemy_x = random.randint(0, 735)
+        enemy_y = random.randint(50, 150)
     
     # misil movements
     
     
     # update the window
+    #clock.tick(60)
     pygame.display.flip()
 pygame.quit()
