@@ -18,6 +18,21 @@ size = (screen_with, screen_height)
 # display screen
 screen = pygame.display.set_mode(size)
 
+# score font
+score_font = pygame.font.Font("Plane Crash.ttf", 32)
+
+#variable score
+score = 0
+
+#position text in screen
+text_x = 10
+text_y = 10
+
+#game over font
+go_x = 200
+go_y = 250
+
+
 #player function
 player_x = 370
 player_y = 520
@@ -27,20 +42,30 @@ def player(x,y):
     screen.blit(player_img,(x,y))
 
 # enemy function
-enemy_x = random.randint(0,736)
-enemy_y = random.randint(50,150)
-enemy_img = pygame.image.load("ovni.png")
-enemy_x_change = 0.3
-enemy_y_change = 10
-def enemy(x,y):
-    screen.blit(enemy_img,(x,y))
+enemy_x = []
+enemy_y = []
+enemy_img = [] 
+enemy_x_change = []
+enemy_y_change = []
+number_enemies = 8
+
+for item in range(number_enemies):
+    
+    enemy_y
+    enemy_img.append(pygame.image.load("ovni.png"))
+    enemy_x.append(random.randint(0, 735))
+    enemy_y.append(random.randint(50, 150))
+    enemy_x_change.append(4)
+    enemy_y_change.append(40)
+def enemy(x,y, item):
+    screen.blit(enemy_img[item],(x,y))
 
 # misil function
 misil_x = 370
 misil_y = 455
 misil_img = pygame.image.load("misil2.0.png")
 misil_x_change = 0
-misil_y_change = 0.8
+misil_y_change = 5
 misil_state = True
 def misil(x,y):
     global misil_state
@@ -54,6 +79,14 @@ def is_colision (m_x, m_y, e_x, e_y):
         return True
     else:
         return False
+    
+def game_over(x,y):
+    go_text = score_font.render("Pal lobby",True,(255,0,0))
+    screen.blit(go_text, (x,y))
+
+def show_score(x,y):
+    score_text = score_font.render("SCORE: " + str(score),True,(255,0,0))
+    screen.blit(score_text, (x,y))
 
 #Title
 pygame.display.set_caption("E.T Killer")
@@ -109,20 +142,33 @@ while running:
     
     # blit of the player
     player(player_x,player_y)
-
-    # blit of enemy
-    enemy(enemy_x,enemy_y)
-
-
-    # enemy movements
-    enemy_x += enemy_x_change
-    if enemy_x <= 0:
-        enemy_x_change = 0.3
-        enemy_y += enemy_y_change
     
-    elif enemy_x >= 736 :
-        enemy_x_change = -0.3
-        enemy_y + enemy_y_change
+    for item in range(number_enemies ):
+        
+        if enemy_y[item] > 440:
+            for j in range (number_enemies):
+                enemy_y[j] = 2000        
+        colision = is_colision(misil_x, misil_y, enemy_x[item], enemy_y[item])
+        if colision:
+            misil_y = 480
+            misil_state = True
+            score += 50
+            enemy_x[item] = random.randint(0, 735)
+            enemy_y[item] = random.randint(50, 150)
+        
+        # blit of enemy
+        enemy(enemy_x[item],enemy_y[item], item)
+
+
+        # enemy movements
+        enemy_x[item] += enemy_x_change[item]
+        if enemy_x[item] <= 0:
+            enemy_x_change[item] = 0.3
+            enemy_y[item] += enemy_y_change[item]
+        
+        elif enemy_x[item] >= 736 :
+            enemy_x_change[item] = -0.3
+            enemy_y[item] + enemy_y_change[item]
 
     if misil_state == False:
         misil(misil_x, misil_y)
@@ -131,17 +177,18 @@ while running:
     if misil_y <= 0:
         misil_y = 480
         misil_state = True
-    colision = is_colision(misil_x, misil_y, enemy_x, enemy_y)
+    colision = is_colision(misil_x, misil_y, enemy_x[item], enemy_y[item])
     if colision:
         misil_y = 480
         misil_state = True
-        enemy_x = random.randint(0, 735)
-        enemy_y = random.randint(50, 150)
+        enemy_x[item]  = random.randint(0, 735)
+        enemy_y[item] = random.randint(50, 150)
     
     # misil movements
     
     
     # update the window
     #clock.tick(60)
+    show_score(text_x, text_y)
     pygame.display.flip()
 pygame.quit()
