@@ -4,6 +4,8 @@ import random
 import random
 import math
 
+from pygame import mixer
+
 # initializate pygame
 pygame.init()
 
@@ -19,7 +21,7 @@ size = (screen_with, screen_height)
 screen = pygame.display.set_mode(size)
 
 # score font
-score_font = pygame.font.Font("Plane Crash.ttf", 32)
+score_font = pygame.font.Font("Plane Crash.ttf", 50)
 
 #variable score
 score = 0
@@ -29,8 +31,10 @@ text_x = 10
 text_y = 10
 
 #game over font
-go_x = 200
-go_y = 250
+go_x = 270  
+go_y = 300
+#condicion de una vez game over
+go_condition = True
 
 
 #player function
@@ -81,11 +85,18 @@ def is_colision (m_x, m_y, e_x, e_y):
         return False
     
 def game_over(x,y):
-    go_text = score_font.render("Pal lobby",True,(255,0,0))
+    global go_condition
+    go_text = score_font.render("pal lobby",True,(123, 36, 28))
+    # game over sound
+    if go_condition :
+        game_over_sound = mixer.Sound("./power-down-7103.wav")
+        game_over_sound.play()
+        go_condition = False
     screen.blit(go_text, (x,y))
 
+
 def show_score(x,y):
-    score_text = score_font.render("SCORE: " + str(score),True,(255,0,0))
+    score_text = score_font.render("score: " + str(score),True,(255,0,0))
     screen.blit(score_text, (x,y))
 
 #Title
@@ -94,6 +105,13 @@ pygame.display.set_caption("E.T Killer")
 #Icon
 icon = pygame.image.load("./misil.png")
 pygame.display.set_icon(icon)
+
+#background sounds
+pygame.mixer.music.load("./bg.wav")
+pygame.mixer.music.play(-1)
+
+#misil sounds
+mixer.music.load("./missile-blast-2-95177.wav")
 
 # bg image
 background = pygame.image.load("istockphoto-1478451948-1024x1024.jpg")
@@ -116,7 +134,9 @@ while running:
             if event.key == pygame.K_SPACE and misil_state == True:                  
                 misil_x = player_x
                 misil(misil_x,misil_y)
-                
+                misil_sound = mixer.Sound("./missile-blast-2-95177.wav")
+                misil_sound.play()
+                misil(player_x,misil_y)
         
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
@@ -147,7 +167,13 @@ while running:
         
         if enemy_y[item] > 440:
             for j in range (number_enemies):
-                enemy_y[j] = 2000        
+                enemy_y[j] = 2000 
+            game_over(go_x,go_y)
+            break
+
+
+
+
         colision = is_colision(misil_x, misil_y, enemy_x[item], enemy_y[item])
         if colision:
             misil_y = 480
@@ -163,11 +189,11 @@ while running:
         # enemy movements
         enemy_x[item] += enemy_x_change[item]
         if enemy_x[item] <= 0:
-            enemy_x_change[item] = 0.3
+            enemy_x_change[item] = 1
             enemy_y[item] += enemy_y_change[item]
         
         elif enemy_x[item] >= 736 :
-            enemy_x_change[item] = -0.3
+            enemy_x_change[item] = -1
             enemy_y[item] + enemy_y_change[item]
 
     if misil_state == False:
